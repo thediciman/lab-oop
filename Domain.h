@@ -11,7 +11,7 @@ typedef struct {
 
 File* File_create(int archiveCatalogueNumber, char* stateOfDeterioration, char* fileType, int yearOfCreation);
 
-void File_destroy(File* file);
+void File_destroy(void* file);
 
 int File_getArchiveCatalogueNumber(File* file);
 

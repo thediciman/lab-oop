@@ -2,11 +2,12 @@
 
 #include <stdlib.h>
 
-Container* Container_create() {
+Container* Container_create(DestroyElementFunction destroyFunction) {
     Container* container = (Container*) malloc(sizeof(Container));
     container->size = 0;
     container->capacity = 0;
     container->data = NULL;
+    container->destroyFunction = destroyFunction;
     return container;
 }
 
@@ -22,8 +23,8 @@ int Container_expandIfCapacityReached(Container* container) {
         } else {
             container->capacity *= 2;
         }
-        TElem** dataCopy = container->data;
-        container->data = (TElem**) malloc(container->capacity * sizeof(TElem*));
+        TElem* dataCopy = container->data;
+        container->data = (TElem*) malloc(container->capacity * sizeof(TElem));
         if (container->data == NULL) {
             free(dataCopy);
             return -1;
@@ -36,7 +37,7 @@ int Container_expandIfCapacityReached(Container* container) {
     return 0;
 }
 
-int Container_pushElementToEnd(Container* container, TElem* element) {
+int Container_pushElementToEnd(Container* container, TElem element) {
     int expansionResult = Container_expandIfCapacityReached(container);
     if (expansionResult != 0) {
         return expansionResult;
@@ -46,7 +47,7 @@ int Container_pushElementToEnd(Container* container, TElem* element) {
     return 0;
 }
 
-TElem* Container_getElementAtIndex(Container* container, int index) {
+TElem Container_getElementAtIndex(Container* container, int index) {
     if (index < 0 || index >= container->size) {
         return NULL;
     }
@@ -57,7 +58,7 @@ int Container_deleteElementAtIndex(Container* container, int index) {
     if (index < 0 || index >= container->size) {
         return -2;
     }
-    File_destroy(container->data[index]);
+    container->destroyFunction(container->data[index]);
     for (int i = index; i < container->size - 1; ++i) {
         container->data[i] = container->data[i + 1];
     }
@@ -65,11 +66,11 @@ int Container_deleteElementAtIndex(Container* container, int index) {
     return 0;
 }
 
-int Container_updateElementAtIndex(Container* container, TElem* element, int index) {
+int Container_updateElementAtIndex(Container* container, TElem element, int index) {
     if (index < 0 || index >= container->size) {
         return -2;
     }
-    File_destroy(container->data[index]);
+    container->destroyFunction(container->data[index]);
     container->data[index] = element;
     return 0;
 }
@@ -85,7 +86,7 @@ int Container_swapElementsAtIndices(Container* container, int firstIndex, int se
     ) {
         return -2;
     }
-    TElem* firstElementPointerCopy = container->data[firstIndex];
+    TElem firstElementPointerCopy = container->data[firstIndex];
     container->data[firstIndex] = container->data[secondIndex];
     container->data[secondIndex] = firstElementPointerCopy;
     return 0;

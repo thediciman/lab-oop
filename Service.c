@@ -44,7 +44,7 @@ Container* Service_getAllFiles(Service* service) {
 
 Container* Service_getFilesByFileType(Service* service, char* fileType) {
     Container* allFiles = Repository_getContainer(service->repository);
-    Container* filteredFiles = Container_create();
+    Container* filteredFiles = Container_create(File_destroy);
     for (int i = 0; i < Container_size(allFiles); ++i) {
         if (strcmp(File_getFileType(Container_getElementAtIndex(allFiles, i)), fileType) == 0) {
             Container_pushElementToEnd(filteredFiles, Container_getElementAtIndex(allFiles, i));
@@ -55,7 +55,7 @@ Container* Service_getFilesByFileType(Service* service, char* fileType) {
 
 Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation) {
     Container* allFiles = Repository_getContainer(service->repository);
-    Container* filteredFiles = Container_create();
+    Container* filteredFiles = Container_create(File_destroy);
     for (int i = 0; i < Container_size(allFiles); ++i) {
         if (File_getYearOfCreation(Container_getElementAtIndex(allFiles, i)) < yearOfCreation) {
             Container_pushElementToEnd(filteredFiles, Container_getElementAtIndex(allFiles, i));

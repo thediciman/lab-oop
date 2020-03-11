@@ -12,7 +12,7 @@ File* File_create(int archiveCatalogueNumber, char* stateOfDeterioration, char* 
     return createdFile;
 }
 
-void File_destroy(File* file) {
+void File_destroy(void* file) {
     free(file);
 }
 
