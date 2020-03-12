@@ -13,7 +13,7 @@ typedef struct {
 
 Container* Container_create(DestroyElementFunction destroyFunction);
 
-void Container_destroy(Container* container);
+void Container_destroy(void* container);
 
 int Container_expandIfCapacityReached(Container* container);
 

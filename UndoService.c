@@ -9,6 +9,7 @@ UndoService* UndoService_create() {
 }
 
 void UndoService_destroy(UndoService* undoService) {
+    Container_destroy(undoService->history);
     free(undoService);
 }
 

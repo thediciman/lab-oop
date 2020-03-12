@@ -3,7 +3,7 @@
 #include "Container.h"
 
 typedef struct {
-    Container** history;
+    Container* history;
 } UndoService;
 
 UndoService* UndoService_create();

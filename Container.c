@@ -11,8 +11,8 @@ Container* Container_create(DestroyElementFunction destroyFunction) {
     return container;
 }
 
-void Container_destroy(Container* container) {
-    free(container->data);
+void Container_destroy(void* container) {
+    free(((Container*) container)->data);
     free(container);
 }
 
