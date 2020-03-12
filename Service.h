@@ -1,12 +1,14 @@
 #pragma once
 
+#include "UndoService.h"
 #include "Repository.h"
 
 typedef struct {
+    UndoService* undoService;
     Repository* repository;
 } Service;
 
-Service* Service_create(Repository* repository);
+Service* Service_create(Repository* repository, UndoService* undoService);
 
 void Service_destroy(Service* service);
 

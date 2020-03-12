@@ -6,9 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-Service* Service_create(Repository* repository) {
+Service* Service_create(Repository* repository, UndoService* undoService) {
     Service* service = (Service*) malloc(sizeof(Service));
     service->repository = repository;
+    service->undoService = undoService;
     return service;
 }
 
