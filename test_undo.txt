@@ -1,0 +1,37 @@
+add 1 a b 2
+add 2 a b 3
+list
+undo
+list
+undo
+list
+add 1 a b 2
+list
+delete 1
+list
+undo
+list
+undo
+list
+add 1 a b 2
+add 2 b c 3
+add 3 c d 4
+list
+delete 2
+list
+update 1 x y 2
+list
+undo
+list
+undo
+list
+undo
+list
+undo
+list
+undo
+list
+add 1 1 1 1 
+add 2 2 2 2
+add 3 3 3 3
+exit

@@ -28,6 +28,8 @@ void UI_listFilteredFiles(UI* ui, char** inputTokens);
 
 void UI_listByYearOfCreation(UI* ui, char** inputTokens);
 
-int UI_checkIfStringIsNumber(char* string);
+int  UI_checkIfStringIsNumber(char* string);
 
-int UI_checkIfCharacterIsDigit(char character);
+int  UI_checkIfCharacterIsDigit(char character);
+
+void UI_undoLastOperation(UI* ui);

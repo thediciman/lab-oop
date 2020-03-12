@@ -56,7 +56,7 @@ void UI_listFilteredFiles(UI* ui, char** inputTokens) {
     for (int i = 0; i < Container_size(filteredFiles); ++i) {
         UI_printFile(Container_getElementAtIndex(filteredFiles, i));
     }
-    Container_destroy(filteredFiles);
+    Container_destroyWithoutElements(filteredFiles);
 }
 
 void UI_listByYearOfCreation(UI* ui, char** inputTokens) {
@@ -64,7 +64,7 @@ void UI_listByYearOfCreation(UI* ui, char** inputTokens) {
     for (int i = 0; i < Container_size(filteredFiles); ++i) {
         UI_printFile(Container_getElementAtIndex(filteredFiles, i));
     }
-    Container_destroy(filteredFiles);
+    Container_destroyWithoutElements(filteredFiles);
 }
 
 void UI_customGetLine(char* userInput) {
@@ -110,12 +110,18 @@ void UI_run(UI* ui) {
             } else {
                 if (UI_checkIfStringIsNumber(userInputTokens[1])) {
                     UI_listByYearOfCreation(ui, userInputTokens);
-                } {
+                } else {
                     UI_listFilteredFiles(ui, userInputTokens);
                 }
-            }         
+            }
+        } else if (strcmp(userInputTokens[0], "undo") == 0) {
+            UI_undoLastOperation(ui);
         }
     }
+}
+
+void UI_undoLastOperation(UI* ui) {
+    Service_undoLastOperation(ui->service);
 }
 
 void UI_printFile(File* file) {

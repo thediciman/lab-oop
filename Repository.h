@@ -23,3 +23,7 @@ int Repository_deleteElementWithID(Repository* repository, int ID);
 int Repository_updateElement(Repository* repository, File* element);
 
 Container* Repository_getContainer(Repository* repository);
+
+void Repository_replaceContainer(Repository* repository, Container* previousState);
+
+Container* Repository_getDeepCopyOfData(Repository* repository);

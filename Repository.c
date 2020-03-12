@@ -9,10 +9,7 @@ Repository* Repository_create() {
 }
 
 void Repository_destroy(Repository* repository) {
-    for (int i = 0; i < Container_size(repository->container); ++i) {
-        File_destroy(Container_getElementAtIndex(repository->container, i));
-    }
-    Container_destroy(repository->container);
+    Container_destroyWithElements(repository->container);
     free(repository);
 }
 
@@ -59,4 +56,24 @@ int Repository_updateElement(Repository* repository, File* element) {
 
 Container* Repository_getContainer(Repository* repository) {
     return repository->container;
+}
+
+void Repository_replaceContainer(Repository* repository, Container* previousState) {
+    Container_destroyWithElements(repository->container);
+    repository->container = previousState;
+}
+
+Container* Repository_getDeepCopyOfData(Repository* repository) {
+    Container* deepCopy = Container_create(Container_getDestroyElementFunction(repository->container));
+    for (int i = 0; i < Container_size(repository->container); ++i) {
+        File* currentFile = Container_getElementAtIndex(repository->container, i);
+        File* currentFileCopy = File_create(
+            File_getArchiveCatalogueNumber(currentFile),
+            File_getStateOfDeterioration(currentFile),
+            File_getFileType(currentFile),
+            File_getYearOfCreation(currentFile)
+        );
+        Container_pushElementToEnd(deepCopy, currentFileCopy);
+    }
+    return deepCopy;
 }

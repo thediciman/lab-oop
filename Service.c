@@ -19,24 +19,39 @@ void Service_destroy(Service* service) {
 
 int Service_addFile(Service* service, int archiveCatalogueNumber, char* stateOfDeterioration, char* fileType, int yearOfCreation) {
     File* file = File_create(archiveCatalogueNumber, stateOfDeterioration, fileType, yearOfCreation);
+    Container* deepCopyOfData = Repository_getDeepCopyOfData(service->repository);
     int returnCode = Repository_addElement(service->repository, file);
     if (returnCode != 0) {
         File_destroy(file);
+        Container_destroyWithElements(deepCopyOfData);
+        return returnCode;
     }
-    return returnCode;
+    UndoService_addToHistory(service->undoService, deepCopyOfData);
+    return 0;
 }
 
 int Service_updateFile(Service* service, int archiveCatalogueNumber, char* newStateOfDeterioration, char* newFileType, int newYearOfCreation) {
     File* file = File_create(archiveCatalogueNumber, newStateOfDeterioration, newFileType, newYearOfCreation);
+    Container* deepCopyOfData = Repository_getDeepCopyOfData(service->repository);
     int returnCode = Repository_updateElement(service->repository, file);
     if (returnCode != 0) {
         File_destroy(file);
+        Container_destroyWithElements(deepCopyOfData);
+        return returnCode;
     }
-    return returnCode;
+    UndoService_addToHistory(service->undoService, deepCopyOfData);
+    return 0;
 }
 
 int Service_deleteFile(Service* service, int archiveCatalogueNumber) {
-    return Repository_deleteElementWithID(service->repository, archiveCatalogueNumber);
+    Container* deepCopyOfData = Repository_getDeepCopyOfData(service->repository);
+    int returnCode = Repository_deleteElementWithID(service->repository, archiveCatalogueNumber);
+    if (returnCode != 0) {
+        Container_destroyWithElements(deepCopyOfData);
+        return returnCode;
+    }
+    UndoService_addToHistory(service->undoService, deepCopyOfData);
+    return 0;
 }
 
 Container* Service_getAllFiles(Service* service) {
@@ -73,4 +88,13 @@ Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation
         }
     } while (sorted == 0);
     return filteredFiles;
+}
+
+int Service_undoLastOperation(Service* service) {
+    Container* previousState = UndoService_popFromHistory(service->undoService);
+    if (previousState == NULL) {
+        return -6;
+    }
+    Repository_replaceContainer(service->repository, previousState);
+    return 0;
 }

@@ -5,6 +5,6 @@ all: target run clean
 target:
 	gcc -Wall -Werror -g *.c -o main.out
 run:
-	valgrind --leak-check=full ./main.out < test.txt
+	valgrind --leak-check=full ./main.out < test_undo.txt
 clean:
 	rm main.out

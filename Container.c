@@ -11,7 +11,15 @@ Container* Container_create(DestroyElementFunction destroyFunction) {
     return container;
 }
 
-void Container_destroy(void* container) {
+void Container_destroyWithElements(void* container) {
+    for (int i = 0; i < Container_size(container); ++i) {
+        ((Container*) container)->destroyFunction(Container_getElementAtIndex(container, i));
+    }
+    free(((Container*) container)->data);
+    free(container);
+}
+
+void Container_destroyWithoutElements(void* container) {
     free(((Container*) container)->data);
     free(container);
 }
@@ -90,4 +98,13 @@ int Container_swapElementsAtIndices(Container* container, int firstIndex, int se
     container->data[firstIndex] = container->data[secondIndex];
     container->data[secondIndex] = firstElementPointerCopy;
     return 0;
+}
+
+TElem Container_popElementFromEnd(Container* container) {
+    --container->size;
+    return container->data[container->size];
+}
+
+DestroyElementFunction Container_getDestroyElementFunction(Container* container) {
+    return container->destroyFunction;
 }

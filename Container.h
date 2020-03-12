@@ -13,7 +13,9 @@ typedef struct {
 
 Container* Container_create(DestroyElementFunction destroyFunction);
 
-void Container_destroy(void* container);
+void Container_destroyWithElements(void* container);
+
+void Container_destroyWithoutElements(void* container);
 
 int Container_expandIfCapacityReached(Container* container);
 
@@ -28,3 +30,9 @@ int Container_updateElementAtIndex(Container* container, TElem element, int inde
 int Container_size(Container* container);
 
 int Container_swapElementsAtIndices(Container* container, int firstIndex, int secondIndex);
+
+TElem Container_popElementFromEnd(Container* container);
+
+DestroyElementFunction Container_getDestroyElementFunction(Container* container);
+
+void Container_destroyElements(Container* container);
