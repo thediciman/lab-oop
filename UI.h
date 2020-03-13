@@ -33,3 +33,5 @@ int  UI_checkIfStringIsNumber(char* string);
 int  UI_checkIfCharacterIsDigit(char character);
 
 void UI_undoLastOperation(UI* ui);
+
+void UI_redoLastOperation(UI* ui);

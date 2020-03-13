@@ -116,12 +116,18 @@ void UI_run(UI* ui) {
             }
         } else if (strcmp(userInputTokens[0], "undo") == 0) {
             UI_undoLastOperation(ui);
+        } else if (strcmp(userInputTokens[0], "redo") == 0) {
+            UI_redoLastOperation(ui);
         }
     }
 }
 
 void UI_undoLastOperation(UI* ui) {
     Service_undoLastOperation(ui->service);
+}
+
+void UI_redoLastOperation(UI* ui) {
+    Service_redoLastOperation(ui->service);
 }
 
 void UI_printFile(File* file) {

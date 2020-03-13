@@ -25,3 +25,5 @@ Container* Service_getFilesByFileType(Service* service, char* fileType);
 Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation);
 
 int Service_undoLastOperation(Service* service);
+
+int Service_redoLastOperation(Service* service);

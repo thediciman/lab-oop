@@ -34,4 +34,35 @@ list
 add 1 1 1 1 
 add 2 2 2 2
 add 3 3 3 3
+undo
+undo
+undo
+add 1 REDO TIME 69
+list
+undo
+list
+redo
+list
+add 2 REDOOOOOO TIMEEEEE 100
+list
+undo
+list
+redo
+list
+update 1 NOMORE REDOBRUH 420
+list
+undo
+list
+redo
+list
+delete 1
+delete 2
+list
+undo
+undo
+list
+redo
+redo
+list
+list
 exit
