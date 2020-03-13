@@ -58,7 +58,7 @@ Container* Repository_getContainer(Repository* repository) {
     return repository->container;
 }
 
-void Repository_replaceContainer(Repository* repository, Container* previousState) {
+void Repository_replaceContainer(Repository* repository, Container* newContainer) {
     Container_destroyWithElements(repository->container);
-    repository->container = previousState;
+    repository->container = newContainer;
 }

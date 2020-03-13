@@ -2,7 +2,6 @@
 
 #include "Utils.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 UndoService* UndoService_create() {
@@ -31,9 +30,9 @@ Container* UndoService_undo(UndoService* undoService) {
         return NULL;
     }
     Container_pushElementToEnd(undoService->redoHistory, Utils_getDeepCopyOfFileContainer(undoService->currentContainer));
-    Container* previousState = Container_popElementFromEnd(undoService->undoHistory);
-    undoService->currentContainer = previousState;
-    return previousState;
+    Container* previousContainer = Container_popElementFromEnd(undoService->undoHistory);
+    undoService->currentContainer = previousContainer;
+    return previousContainer;
 }
 
 Container* UndoService_redo(UndoService* undoService) {
@@ -41,7 +40,7 @@ Container* UndoService_redo(UndoService* undoService) {
         return NULL;
     }
     Container_pushElementToEnd(undoService->undoHistory, Utils_getDeepCopyOfFileContainer(undoService->currentContainer));
-    Container* previousState = Container_popElementFromEnd(undoService->redoHistory);
-    undoService->currentContainer = previousState;
-    return previousState;
+    Container* previousContainer = Container_popElementFromEnd(undoService->redoHistory);
+    undoService->currentContainer = previousContainer;
+    return previousContainer;
 }

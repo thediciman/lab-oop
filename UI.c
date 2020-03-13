@@ -7,6 +7,14 @@
 #define UI_MAX_TOKENS_ARRAY_LENGTH 8
 #define UI_MAX_USER_INPUT_LENGTH 2048
 
+#define UI_ARCHIVE_CATALOGUE_NUMBER_INDEX_IN_INPUT_TOKENS 1
+#define UI_STATE_OF_DETERIORATION_INDEX_IN_INPUT_TOKENS 2
+#define UI_FILE_TYPE_INDEX_IN_INPUT_TOKENS 3
+#define UI_YEAR_OF_CREATION_INDEX_IN_INPUT_TOKENS 4
+#define UI_FILE_TYPE_INDEX_IN_INPUT_TOKENS_FOR_FILTER 1
+#define UI_YEAR_OF_CREATION_INDEX_IN_INPUT_TOKENS_FOR_FILTER 1
+#define UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS 0
+
 int UI_checkIfCharacterIsDigit(char character) {
     return character >= '0' && character <= '9';
 }
@@ -27,18 +35,30 @@ UI* UI_create(Service* service) {
 }
 
 void UI_addFile(UI* ui, char** inputTokens) {
-    int resultCode = Service_addFile(ui->service, atoi(inputTokens[1]), inputTokens[2], inputTokens[3], atoi(inputTokens[4]));
+    int resultCode = Service_addFile(
+        ui->service,
+        atoi(inputTokens[UI_ARCHIVE_CATALOGUE_NUMBER_INDEX_IN_INPUT_TOKENS]),
+        inputTokens[UI_STATE_OF_DETERIORATION_INDEX_IN_INPUT_TOKENS],
+        inputTokens[UI_FILE_TYPE_INDEX_IN_INPUT_TOKENS],
+        atoi(inputTokens[UI_YEAR_OF_CREATION_INDEX_IN_INPUT_TOKENS])
+    );
     if (resultCode != 0) {
         printf("No!\n");
     }
 }
 
 void UI_updateFile(UI* ui, char** inputTokens) {
-    Service_updateFile(ui->service, atoi(inputTokens[1]), inputTokens[2], inputTokens[3], atoi(inputTokens[4]));
+    Service_updateFile(
+        ui->service,
+        atoi(inputTokens[UI_ARCHIVE_CATALOGUE_NUMBER_INDEX_IN_INPUT_TOKENS]),
+        inputTokens[UI_STATE_OF_DETERIORATION_INDEX_IN_INPUT_TOKENS],
+        inputTokens[UI_FILE_TYPE_INDEX_IN_INPUT_TOKENS],
+        atoi(inputTokens[UI_YEAR_OF_CREATION_INDEX_IN_INPUT_TOKENS])
+    );
 }
 
 void UI_deleteFile(UI* ui, char** inputTokens) {
-    int resultCode = Service_deleteFile(ui->service, atoi(inputTokens[1]));
+    int resultCode = Service_deleteFile(ui->service, atoi(inputTokens[UI_ARCHIVE_CATALOGUE_NUMBER_INDEX_IN_INPUT_TOKENS]));
     if (resultCode != 0) {
         printf("No!\n");
     }
@@ -52,7 +72,7 @@ void UI_listAllFiles(UI* ui) {
 }
 
 void UI_listFilteredFiles(UI* ui, char** inputTokens) {
-    Container* filteredFiles = Service_getFilesByFileType(ui->service, inputTokens[1]);
+    Container* filteredFiles = Service_getFilesByFileType(ui->service, inputTokens[UI_FILE_TYPE_INDEX_IN_INPUT_TOKENS_FOR_FILTER]);
     for (int i = 0; i < Container_size(filteredFiles); ++i) {
         UI_printFile(Container_getElementAtIndex(filteredFiles, i));
     }
@@ -60,7 +80,7 @@ void UI_listFilteredFiles(UI* ui, char** inputTokens) {
 }
 
 void UI_listByYearOfCreation(UI* ui, char** inputTokens) {
-    Container* filteredFiles = Service_getFilesByYearOfCreation(ui->service, atoi(inputTokens[1]));
+    Container* filteredFiles = Service_getFilesByYearOfCreation(ui->service, atoi(inputTokens[UI_YEAR_OF_CREATION_INDEX_IN_INPUT_TOKENS_FOR_FILTER]));
     for (int i = 0; i < Container_size(filteredFiles); ++i) {
         UI_printFile(Container_getElementAtIndex(filteredFiles, i));
     }
@@ -98,25 +118,25 @@ void UI_run(UI* ui) {
             currentToken = strtok(NULL, " ,");
         }
 
-        if (strcmp(userInputTokens[0], "add") == 0) {
+        if (strcmp(userInputTokens[UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS], "add") == 0) {
             UI_addFile(ui, userInputTokens);
-        } else if (strcmp(userInputTokens[0], "update") == 0) {
+        } else if (strcmp(userInputTokens[UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS], "update") == 0) {
             UI_updateFile(ui, userInputTokens);            
-        } else if (strcmp(userInputTokens[0], "delete") == 0) {
+        } else if (strcmp(userInputTokens[UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS], "delete") == 0) {
             UI_deleteFile(ui, userInputTokens);
-        } else if (strcmp(userInputTokens[0], "list") == 0) {
+        } else if (strcmp(userInputTokens[UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS], "list") == 0) {
             if (currentTokenIndex == 1) {
                 UI_listAllFiles(ui);
             } else {
-                if (UI_checkIfStringIsNumber(userInputTokens[1])) {
+                if (UI_checkIfStringIsNumber(userInputTokens[UI_YEAR_OF_CREATION_INDEX_IN_INPUT_TOKENS_FOR_FILTER])) {
                     UI_listByYearOfCreation(ui, userInputTokens);
                 } else {
                     UI_listFilteredFiles(ui, userInputTokens);
                 }
             }
-        } else if (strcmp(userInputTokens[0], "undo") == 0) {
+        } else if (strcmp(userInputTokens[UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS], "undo") == 0) {
             UI_undoLastOperation(ui);
-        } else if (strcmp(userInputTokens[0], "redo") == 0) {
+        } else if (strcmp(userInputTokens[UI_COMMAND_TYPE_INDEX_IN_INPUT_TOKENS], "redo") == 0) {
             UI_redoLastOperation(ui);
         }
     }

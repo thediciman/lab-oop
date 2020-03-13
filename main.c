@@ -15,6 +15,5 @@ int main() {
 	UndoService_destroy(undoService);
 	Service_destroy(service);
 	UI_destroy(ui);
-
     return 0;
 }

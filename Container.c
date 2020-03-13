@@ -101,6 +101,9 @@ int Container_swapElementsAtIndices(Container* container, int firstIndex, int se
 }
 
 TElem Container_popElementFromEnd(Container* container) {
+    if (container->size == 0) {
+        return NULL;
+    }
     --container->size;
     return container->data[container->size];
 }
