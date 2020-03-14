@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_CHAR_LEN 2048
+#include "macros.h"
 
 typedef struct {
     int archiveCatalogueNumber;

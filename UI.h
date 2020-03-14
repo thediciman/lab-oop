@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Service.h"
+#include "macros.h"
 
 typedef struct {
     Service* service;

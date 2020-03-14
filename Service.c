@@ -3,11 +3,13 @@
 #include "Container.h"
 #include "Repository.h"
 #include "Utils.h"
+#include "macros.h"
+#include "BonusUndoService.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-Service* Service_create(Repository* repository, UndoService* undoService) {
+Service* Service_create(Repository* repository, void* undoService) {
     Service* service = (Service*) malloc(sizeof(Service));
     service->repository = repository;
     service->undoService = undoService;
@@ -20,38 +22,158 @@ void Service_destroy(Service* service) {
 
 int Service_addFile(Service* service, int archiveCatalogueNumber, char* stateOfDeterioration, char* fileType, int yearOfCreation) {
     File* file = File_create(archiveCatalogueNumber, stateOfDeterioration, fileType, yearOfCreation);
+#ifndef BONUS_UNDO_SERVICE
     Container* deepCopyOfData = Utils_getDeepCopyOfFileContainer(Repository_getContainer(service->repository));
+#endif
     int returnCode = Repository_addElement(service->repository, file);
     if (returnCode != 0) {
         File_destroy(file);
+#ifndef BONUS_UNDO_SERVICE
         Container_destroyWithElements(deepCopyOfData);
+#endif
         return returnCode;
     }
+#ifndef BONUS_UNDO_SERVICE
     UndoService_addToHistory(service->undoService, deepCopyOfData, Repository_getContainer(service->repository));
+#else
+    if (((BonusUndoService*) service->undoService)->duringOperation == 0) {
+        FunctionCall* undoFunction = FunctionCall_create(
+            NULL,
+            Service_deleteFile, 
+            ParameterList_create(
+                service,
+                archiveCatalogueNumber,
+                "",
+                "",
+                -1
+            )
+        );
+        FunctionCall* redoFunction = FunctionCall_create(
+            Service_addFile, 
+            NULL,
+            ParameterList_create(
+                service,
+                archiveCatalogueNumber,
+                stateOfDeterioration,
+                fileType,
+                yearOfCreation
+            )
+        );
+        BonusUndoService_recordOperation(service->undoService, Operation_create(undoFunction, redoFunction));
+    }
+#endif
     return 0;
 }
 
 int Service_updateFile(Service* service, int archiveCatalogueNumber, char* newStateOfDeterioration, char* newFileType, int newYearOfCreation) {
+#ifdef BONUS_UNDO_SERVICE
+    File* updatedFile = NULL;
+    char updatedFileStateOfDeterioration[MAX_CHAR_LEN];
+    char updatedFileFileType[MAX_CHAR_LEN];
+    int updatedFileYearOfCreation;
+    if (((BonusUndoService*) service->undoService)->duringOperation == 0) {
+        updatedFile = Repository_getFileByID(service->repository, archiveCatalogueNumber);
+        strcpy(updatedFileStateOfDeterioration, File_getStateOfDeterioration(updatedFile));
+        strcpy(updatedFileFileType, File_getFileType(updatedFile));
+        updatedFileYearOfCreation = File_getYearOfCreation(updatedFile);
+    }
+#endif
     File* file = File_create(archiveCatalogueNumber, newStateOfDeterioration, newFileType, newYearOfCreation);
+#ifndef BONUS_UNDO_SERVICE
     Container* deepCopyOfData = Utils_getDeepCopyOfFileContainer(Repository_getContainer(service->repository));
+#endif
     int returnCode = Repository_updateElement(service->repository, file);
     if (returnCode != 0) {
         File_destroy(file);
+#ifndef BONUS_UNDO_SERVICE
         Container_destroyWithElements(deepCopyOfData);
+#endif
         return returnCode;
     }
+#ifndef BONUS_UNDO_SERVICE
     UndoService_addToHistory(service->undoService, deepCopyOfData, Repository_getContainer(service->repository));
+#else
+    if (((BonusUndoService*) service->undoService)->duringOperation == 0) {
+        FunctionCall* undoFunction = FunctionCall_create(
+            Service_updateFile,
+            NULL,
+            ParameterList_create(
+                service,
+                archiveCatalogueNumber,
+                updatedFileStateOfDeterioration,
+                updatedFileFileType,
+                updatedFileYearOfCreation
+            )
+        );
+        FunctionCall* redoFunction = FunctionCall_create(
+            Service_updateFile,
+            NULL,
+            ParameterList_create(
+                service,
+                archiveCatalogueNumber,
+                newStateOfDeterioration,
+                newFileType,
+                newYearOfCreation
+            )
+        );
+        BonusUndoService_recordOperation(service->undoService, Operation_create(undoFunction, redoFunction));
+    }
+#endif
     return 0;
 }
 
 int Service_deleteFile(Service* service, int archiveCatalogueNumber) {
+#ifdef BONUS_UNDO_SERVICE
+    File* deletedFile = NULL;
+    char deletedFileStateOfDeterioration[MAX_CHAR_LEN];
+    char deletedFileFileType[MAX_CHAR_LEN];
+    int deletedFileYearOfCreation;
+    if (((BonusUndoService*) service->undoService)->duringOperation == 0) {
+        deletedFile = Repository_getFileByID(service->repository, archiveCatalogueNumber);
+        strcpy(deletedFileStateOfDeterioration, File_getStateOfDeterioration(deletedFile));
+        strcpy(deletedFileFileType, File_getFileType(deletedFile));
+        deletedFileYearOfCreation = File_getYearOfCreation(deletedFile);
+    }
+#endif
+#ifndef BONUS_UNDO_SERVICE
     Container* deepCopyOfData = Utils_getDeepCopyOfFileContainer(Repository_getContainer(service->repository));
+#endif
     int returnCode = Repository_deleteElementWithID(service->repository, archiveCatalogueNumber);
     if (returnCode != 0) {
+#ifndef BONUS_UNDO_SERVICE
         Container_destroyWithElements(deepCopyOfData);
+#endif
         return returnCode;
     }
+#ifndef BONUS_UNDO_SERVICE
     UndoService_addToHistory(service->undoService, deepCopyOfData, Repository_getContainer(service->repository));
+#else
+    if (((BonusUndoService*) service->undoService)->duringOperation == 0) {
+        FunctionCall* undoFunction = FunctionCall_create(
+            Service_addFile, 
+            NULL,
+            ParameterList_create(
+                service,
+                archiveCatalogueNumber,
+                deletedFileStateOfDeterioration,
+                deletedFileFileType,
+                deletedFileYearOfCreation
+            )
+        );
+        FunctionCall* redoFunction = FunctionCall_create(
+            NULL,
+            Service_deleteFile, 
+            ParameterList_create(
+                service,
+                archiveCatalogueNumber,
+                "",
+                "",
+                -1
+            )
+        );
+        BonusUndoService_recordOperation(service->undoService, Operation_create(undoFunction, redoFunction));
+    }
+#endif
     return 0;
 }
 
@@ -92,19 +214,27 @@ Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation
 }
 
 int Service_undoLastOperation(Service* service) {
-    Container* previousState = UndoService_undo(service->undoService);
+ #ifndef BONUS_UNDO_SERVICE
+   Container* previousState = UndoService_undo(service->undoService);
     if (previousState == NULL) {
         return -6;
     }
     Repository_replaceContainer(service->repository, previousState);
+#else
+    BonusUndoService_undo(service->undoService);
+#endif
     return 0;
 }
 
 int Service_redoLastOperation(Service* service) {
+#ifndef BONUS_UNDO_SERVICE
     Container* previousState = UndoService_redo(service->undoService);
     if (previousState == NULL) {
         return -6;
     }
     Repository_replaceContainer(service->repository, previousState);
+#else
+    BonusUndoService_redo(service->undoService);
+#endif
     return 0;
 }

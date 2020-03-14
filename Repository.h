@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Container.h"
-
 #include "Domain.h"
+#include "macros.h"
 
 typedef struct {
     Container* container;
@@ -103,3 +103,14 @@ Container* Repository_getContainer(Repository* repository);
         - None.
 */
 void Repository_replaceContainer(Repository* repository, Container* newContainer);
+
+/*
+    Description:
+        - Retrieves a file with a given ID from the repository.
+    Inputs:
+        - repository: The repository from which the file shall be retrieved.
+        - ID: The ID of the file to be retrieved.
+    Outputs:
+        - The required file on success, NULL otherwise.
+*/
+File* Repository_getFileByID(Repository* repository, int ID);

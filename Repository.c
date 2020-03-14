@@ -62,3 +62,12 @@ void Repository_replaceContainer(Repository* repository, Container* newContainer
     Container_destroyWithElements(repository->container);
     repository->container = newContainer;
 }
+
+File* Repository_getFileByID(Repository* repository, int ID) {
+    for (int i = 0; i < Container_size(repository->container); ++i) {
+        if (File_getArchiveCatalogueNumber(Container_getElementAtIndex(repository->container, i)) == ID) {
+            return Container_getElementAtIndex(repository->container, i);
+        }
+    }
+    return NULL;
+}

@@ -2,9 +2,10 @@
 
 #include "UndoService.h"
 #include "Repository.h"
+#include "macros.h"
 
 typedef struct {
-    UndoService* undoService;
+    void* undoService;
     Repository* repository;
 } Service;
 
@@ -17,7 +18,7 @@ typedef struct {
     Outputs:
         - The newly allocated Service.
 */
-Service* Service_create(Repository* repository, UndoService* undoService);
+Service* Service_create(Repository* repository, void* undoService);
 
 /*
     Description:
