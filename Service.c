@@ -9,6 +9,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef int (*FilterFunction) (File*);
+typedef int (*ComparatorFunction) (File*, File*);
+
+char GLOBAL_FILETYPE_FILTER[MAX_CHAR_LEN];
+int GLOBAL_YEAR_OF_CREATION_FILTER;
+
+int filterByFiletype(File* file) {
+    return strcmp(File_getFileType(file), GLOBAL_FILETYPE_FILTER) == 0;
+}
+
+int filterByYearOfCreation(File* file) {
+    return File_getYearOfCreation(file) < GLOBAL_YEAR_OF_CREATION_FILTER;
+}
+
+int compareYearOfCreation_Greater(File* first, File* second) {
+    return File_getYearOfCreation(first) > File_getYearOfCreation(second);
+}
+
+int compareYearOfCreation_Less(File* first, File* second) {
+    return File_getYearOfCreation(first) < File_getYearOfCreation(second);
+}
+
 Service* Service_create(Repository* repository, void* undoService) {
     Service* service = (Service*) malloc(sizeof(Service));
     service->repository = repository;
@@ -181,40 +203,43 @@ Container* Service_getAllFiles(Service* service) {
     return Repository_getContainer(service->repository);
 }
 
-Container* Service_getFilesByFileType(Service* service, char* fileType) {
+Container* Service_filterFilesByFilter(Service* service, FilterFunction filter) {
     Container* allFiles = Repository_getContainer(service->repository);
     Container* filteredFiles = Container_create(File_destroy);
     for (int i = 0; i < Container_size(allFiles); ++i) {
-        if (strcmp(File_getFileType(Container_getElementAtIndex(allFiles, i)), fileType) == 0) {
+        if (filter(Container_getElementAtIndex(allFiles, i))) {
             Container_pushElementToEnd(filteredFiles, Container_getElementAtIndex(allFiles, i));
         }
     }
     return filteredFiles;
 }
 
-Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation) {
-    Container* allFiles = Repository_getContainer(service->repository);
-    Container* filteredFiles = Container_create(File_destroy);
-    for (int i = 0; i < Container_size(allFiles); ++i) {
-        if (File_getYearOfCreation(Container_getElementAtIndex(allFiles, i)) < yearOfCreation) {
-            Container_pushElementToEnd(filteredFiles, Container_getElementAtIndex(allFiles, i));
-        }
-    }
+Container* Service_sortFilesByComparator(Container* container, ComparatorFunction comparator) {
     int sorted = 0;
     do {
         sorted = 1;
-        for (int i = 0; i < Container_size(filteredFiles) - 1; ++i) {
-            if (File_getYearOfCreation(Container_getElementAtIndex(filteredFiles, i)) > File_getYearOfCreation(Container_getElementAtIndex(filteredFiles, i + 1))) {
-                Container_swapElementsAtIndices(filteredFiles, i, i + 1);
+        for (int i = 0; i < Container_size(container) - 1; ++i) {
+            if (comparator(Container_getElementAtIndex(container, i), Container_getElementAtIndex(container, i + 1))) {
+                Container_swapElementsAtIndices(container, i, i + 1);
                 sorted = 0;
             }
         }
     } while (sorted == 0);
-    return filteredFiles;
+    return container;
+}
+
+Container* Service_getFilesByFileType(Service* service, char* fileType) {
+    strcpy(GLOBAL_FILETYPE_FILTER, fileType);
+    return Service_filterFilesByFilter(service, filterByFiletype);
+}
+
+Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation) {
+    GLOBAL_YEAR_OF_CREATION_FILTER = yearOfCreation;
+    return Service_sortFilesByComparator(Service_filterFilesByFilter(service, filterByYearOfCreation), compareYearOfCreation_Greater);
 }
 
 int Service_undoLastOperation(Service* service) {
- #ifndef BONUS_UNDO_SERVICE
+#ifndef BONUS_UNDO_SERVICE
    Container* previousState = UndoService_undo(service->undoService);
     if (previousState == NULL) {
         return -6;
