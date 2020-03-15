@@ -9,12 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef int (*FilterFunction) (File*);
-typedef int (*ComparatorFunction) (File*, File*);
-
-char GLOBAL_FILETYPE_FILTER[MAX_CHAR_LEN];
-int GLOBAL_YEAR_OF_CREATION_FILTER;
-
 int filterByFiletype(File* file) {
     return strcmp(File_getFileType(file), GLOBAL_FILETYPE_FILTER) == 0;
 }
@@ -23,15 +17,15 @@ int filterByYearOfCreation(File* file) {
     return File_getYearOfCreation(file) < GLOBAL_YEAR_OF_CREATION_FILTER;
 }
 
-int compareYearOfCreation_Greater(File* first, File* second) {
-    return File_getYearOfCreation(first) > File_getYearOfCreation(second);
+int compareStateOfDeterioration_Greater(File* first, File* second) {
+    return strcmp(File_getStateOfDeterioration(first), File_getStateOfDeterioration(second)) > 0;
 }
 
-int compareYearOfCreation_Less(File* first, File* second) {
-    return File_getYearOfCreation(first) < File_getYearOfCreation(second);
+int compareStateOfDeterioration_Less(File* first, File* second) {
+    return strcmp(File_getStateOfDeterioration(first), File_getStateOfDeterioration(second)) < 0;
 }
 
-Container* Service_filterFilesByFilter(Service* service, FilterFunction filter) {
+Container*  Service_filterFilesByFilter(Service* service, FilterFunction filter) {
     Container* allFiles = Repository_getContainer(service->repository);
     Container* filteredFiles = Container_create(File_destroy);
     for (int i = 0; i < Container_size(allFiles); ++i) {
@@ -235,7 +229,7 @@ Container* Service_getFilesByFileType(Service* service, char* fileType) {
 
 Container* Service_getFilesByYearOfCreation(Service* service, int yearOfCreation) {
     GLOBAL_YEAR_OF_CREATION_FILTER = yearOfCreation;
-    return Service_sortFilesByComparator(Service_filterFilesByFilter(service, filterByYearOfCreation), compareYearOfCreation_Greater);
+    return Service_sortFilesByComparator(Service_filterFilesByFilter(service, filterByYearOfCreation), compareStateOfDeterioration_Greater);
 }
 
 int Service_undoLastOperation(Service* service) {

@@ -9,6 +9,12 @@ typedef struct {
     Repository* repository;
 } Service;
 
+typedef int (*FilterFunction) (File*);
+typedef int (*ComparatorFunction) (File*, File*);
+
+char GLOBAL_FILETYPE_FILTER[MAX_CHAR_LEN];
+int GLOBAL_YEAR_OF_CREATION_FILTER;
+
 /*
     Description:
         - Creates a new dynamically allocated Service and returns it.
@@ -117,3 +123,15 @@ int Service_undoLastOperation(Service* service);
         - 0 on success, -6 if there was no possible redo operation.
 */
 int Service_redoLastOperation(Service* service);
+
+Container* Service_filterFilesByFilter(Service* service, FilterFunction filter);
+
+Container* Service_sortFilesByComparator(Container* container, ComparatorFunction comparator);
+
+int filterByFiletype(File* file);
+
+int filterByYearOfCreation(File* file);
+
+int compareStateOfDeterioration_Greater(File* first, File* second);
+
+int compareStateOfDeterioration_Less(File* first, File* second);
