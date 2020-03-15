@@ -31,6 +31,31 @@ int compareYearOfCreation_Less(File* first, File* second) {
     return File_getYearOfCreation(first) < File_getYearOfCreation(second);
 }
 
+Container* Service_filterFilesByFilter(Service* service, FilterFunction filter) {
+    Container* allFiles = Repository_getContainer(service->repository);
+    Container* filteredFiles = Container_create(File_destroy);
+    for (int i = 0; i < Container_size(allFiles); ++i) {
+        if (filter(Container_getElementAtIndex(allFiles, i))) {
+            Container_pushElementToEnd(filteredFiles, Container_getElementAtIndex(allFiles, i));
+        }
+    }
+    return filteredFiles;
+}
+
+Container* Service_sortFilesByComparator(Container* container, ComparatorFunction comparator) {
+    int sorted = 0;
+    do {
+        sorted = 1;
+        for (int i = 0; i < Container_size(container) - 1; ++i) {
+            if (comparator(Container_getElementAtIndex(container, i), Container_getElementAtIndex(container, i + 1))) {
+                Container_swapElementsAtIndices(container, i, i + 1);
+                sorted = 0;
+            }
+        }
+    } while (sorted == 0);
+    return container;
+}
+
 Service* Service_create(Repository* repository, void* undoService) {
     Service* service = (Service*) malloc(sizeof(Service));
     service->repository = repository;
@@ -201,31 +226,6 @@ int Service_deleteFile(Service* service, int archiveCatalogueNumber) {
 
 Container* Service_getAllFiles(Service* service) {
     return Repository_getContainer(service->repository);
-}
-
-Container* Service_filterFilesByFilter(Service* service, FilterFunction filter) {
-    Container* allFiles = Repository_getContainer(service->repository);
-    Container* filteredFiles = Container_create(File_destroy);
-    for (int i = 0; i < Container_size(allFiles); ++i) {
-        if (filter(Container_getElementAtIndex(allFiles, i))) {
-            Container_pushElementToEnd(filteredFiles, Container_getElementAtIndex(allFiles, i));
-        }
-    }
-    return filteredFiles;
-}
-
-Container* Service_sortFilesByComparator(Container* container, ComparatorFunction comparator) {
-    int sorted = 0;
-    do {
-        sorted = 1;
-        for (int i = 0; i < Container_size(container) - 1; ++i) {
-            if (comparator(Container_getElementAtIndex(container, i), Container_getElementAtIndex(container, i + 1))) {
-                Container_swapElementsAtIndices(container, i, i + 1);
-                sorted = 0;
-            }
-        }
-    } while (sorted == 0);
-    return container;
 }
 
 Container* Service_getFilesByFileType(Service* service, char* fileType) {
