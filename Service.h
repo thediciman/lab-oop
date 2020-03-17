@@ -124,14 +124,68 @@ int Service_undoLastOperation(Service* service);
 */
 int Service_redoLastOperation(Service* service);
 
+/*
+    Description:
+        - Returns a container of objects, filtered using a given filtering function.
+    Inputs:
+        - service: the service whose files we want to filter.
+        - filter: the function used to filter the files.
+    Outputs:
+        - The container which has the desired filtered files.
+*/
 Container* Service_filterFilesByFilter(Service* service, FilterFunction filter);
 
+/*
+    Description:
+        - Sorts in-place and also returns a container, given a comparator function.
+    Inputs:
+        - container: the container to be sorted.
+        - comparator: the function used to compare two elements.
+    Outputs:
+        - The sorted container.
+*/
 Container* Service_sortFilesByComparator(Container* container, ComparatorFunction comparator);
 
+/*
+    Description:
+        - Predicate function used to filter files, by fileType.
+        - It requires GLOBAL_FILETYPE_FILTER to be set before using the function for filtering.
+    Inputs:
+        - file: the file which is checked for filtering.
+    Outputs:
+        - 1 if the file shall be kept, 0 otherwise.
+*/
 int filterByFiletype(File* file);
 
+/*
+    Description:
+        - Predicate function used to filter files, by yearOfCreation.
+        - It requires GLOBAL_YEAR_OF_CREATION to be set before using the function for filtering.
+    Inputs:
+        - file: the file which is checked for filtering.
+    Outputs:
+        - 1 if the file shall be kept, 0 otherwise.
+*/
 int filterByYearOfCreation(File* file);
 
+/*
+    Description:
+        - Function that determines the order between two elements;
+        - The order which it imposes is that the first file's stateOfDeterioration is greater lexicographically than the second file.
+    Inputs:
+        - first, second: the files to be compared.
+    Outputs:
+        - 1 if the files are in the correct order, 0 otherwise.
+*/
 int compareStateOfDeterioration_Greater(File* first, File* second);
 
+/*
+    Description:
+        - Function that determines the order between two elements;
+        - The order which it imposes is that the first file's stateOfDeterioration is less lexicographically than the second file.
+    Inputs:
+        - first, second: the files to be compared.
+    Outputs:
+        - 1 if the files are in the correct order, 0 otherwise.
+*/
 int compareStateOfDeterioration_Less(File* first, File* second);
