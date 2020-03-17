@@ -5,7 +5,18 @@
 #include "UI.h"
 #include "macros.h"
 
+#include "Tests.h"
+
+#define RUN_TESTS
+
 int main() {
+
+#ifdef RUN_TESTS
+	#ifndef BONUS_UNDO_SERVICE
+		runAllTests();
+	#endif
+#endif
+
 	Repository* repository = Repository_create();
 
 #ifndef BONUS_UNDO_SERVICE
