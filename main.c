@@ -14,6 +14,10 @@ int main() {
 #ifdef RUN_TESTS
 	#ifndef BONUS_UNDO_SERVICE
 		runAllTests();
+<<<<<<< HEAD
+=======
+		return 0;
+>>>>>>> c87dbe13d8715d1425977185ffc74bb4e8af6158
 	#endif
 #endif
 
